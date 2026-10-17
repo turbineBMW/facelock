@@ -136,7 +136,8 @@ jobs:
       - name: Install system dependencies
         run: |
           printf '%s\n' 'Server = https://archive.archlinux.org/repos/2026/08/18/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-          pacman -Syu --noconfirm \
+          attempt=1
+          while ! pacman -Syu --noconfirm --disable-download-timeout \
             git \
             just \
             rust \
@@ -145,7 +146,16 @@ jobs:
             libxkbcommon \
             wayland \
             pam \
-            tpm2-tss
+            tpm2-tss; do
+            if [ "$attempt" -ge 4 ]; then
+              echo "pacman failed after $attempt attempts" >&2
+              exit 1
+            fi
+            delay=$((15 * attempt))
+            echo "pacman failed on attempt $attempt; retrying in ${delay}s" >&2
+            sleep "$delay"
+            attempt=$((attempt + 1))
+          done
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
