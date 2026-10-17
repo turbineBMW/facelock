@@ -21,7 +21,14 @@ RUN if grep -q '^#DisableDownloadTimeout' /etc/pacman.conf; then \
 # `facelock pam add --service polkit-1` used to fail on.
 # `jq` reads the `facelock status --json` document in the integration tests, which wait on the
 # daemon by parsing it rather than by grepping the report a person reads.
-RUN pacman -Syu --noconfirm pam polkit sudo base-devel libxkbcommon just dbus onnxruntime-cpu protobuf python python-gobject sqlite jq && pacman -Scc --noconfirm
+RUN attempt=1; \
+    while ! pacman -Syu --noconfirm --disable-download-timeout pam polkit sudo base-devel libxkbcommon just dbus onnxruntime-cpu protobuf python python-gobject sqlite jq; do \
+        if [ "$attempt" -ge 4 ]; then echo "pacman failed after $attempt attempts" >&2; exit 1; fi; \
+        delay=$((15 * attempt)); \
+        echo "pacman failed on attempt $attempt; retrying in ${delay}s" >&2; \
+        sleep "$delay"; \
+        attempt=$((attempt + 1)); \
+    done && pacman -Scc --noconfirm
 
 # Give the disposable PID1 image a deterministic machine identity so
 # dbus-broker can establish the system bus without extra mounts.
