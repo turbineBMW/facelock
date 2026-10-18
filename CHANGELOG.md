@@ -93,6 +93,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **One `chown` helper for the CLI** (#220): `state_layout` and the enrollment-marker writer each
+  carried their own `libc::chown` wrapper; both now call `facelock_core::fs_security::chown_to`.
+  No behavior change.
+
 - **The upgrade lanes now prove the newest released predecessor** (#367): `dist/release-matrix.json`
   names it as `predecessors.current`, pinned to v0.2.1's published .deb and fc44 .rpm, and the lane
   scripts, the release-matrix contract, the served-EVR preflight check and the candidate version all
