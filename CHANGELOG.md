@@ -71,6 +71,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a refusal, because sealing is what the auto path does with an existing keyfile. The
   refusal names the file, its size and the remedy (restore the real key, or remove it and
   re-run), since it stops setup before it secures paths and writes its marker.
+- **Per-frame face embeddings and `facelock tpm encrypt`'s row snapshot are now zeroized**
+  (#305): the embeddings inference returns for each captured frame are held in the same
+  `Wiped` drop guard as the compare sets, on the auth, enroll, preview and benchmark paths,
+  and the engine accumulates them through the guard so a face failing to align or embed
+  wipes the ones already extracted for that frame. `facelock tpm encrypt` holds each
+  plaintext row of its store snapshot in `zeroize::Zeroizing`, as `facelock tpm decrypt`
+  already did for unsealed rows, so a seal or store-update failure mid-run no longer
+  frees plaintext template bytes unwiped.
 
 ### Added
 
