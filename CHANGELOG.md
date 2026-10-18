@@ -71,6 +71,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a refusal, because sealing is what the auto path does with an existing keyfile. The
   refusal names the file, its size and the remedy (restore the real key, or remove it and
   re-run), since it stops setup before it secures paths and writes its marker.
+- **`just test-release-artifacts` no longer fails mutations at random under CPU load**
+  (#389): its checks piped multi-line text from `printf` into `grep -q` under
+  `set -o pipefail`. Bash's `printf` writes to a pipe one line at a time, so once `grep`
+  matched an early line and exited, the next write raised SIGPIPE and the check failed
+  although the text was present. Load widened that race, and the parallel mutation runs
+  from #380 supplied the load, so a mutant's re-run tripped over an unrelated assertion
+  and was reported as `mutation failed for an unrelated reason`. The checks now read
+  here-strings, so nothing is left writing when `grep` exits. The runs were never sharing
+  state, so `FACELOCK_MUTATION_JOBS` keeps its meaning and default.
 
 ### Added
 
