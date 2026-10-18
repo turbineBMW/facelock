@@ -80,6 +80,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and was reported as `mutation failed for an unrelated reason`. The checks now read
   here-strings, so nothing is left writing when `grep` exits. The runs were never sharing
   state, so `FACELOCK_MUTATION_JOBS` keeps its meaning and default.
+- **Per-frame face embeddings and `facelock tpm encrypt`'s row snapshot are now zeroized**
+  (#305): the embeddings inference returns for each captured frame are held in the same
+  `Wiped` drop guard as the compare sets, on the auth, enroll, preview and benchmark paths,
+  and the engine accumulates them through the guard so a face failing to align or embed
+  wipes the ones already extracted for that frame. `facelock tpm encrypt` holds each
+  plaintext row of its store snapshot in `zeroize::Zeroizing`, as `facelock tpm decrypt`
+  already did for unsealed rows, so a seal or store-update failure mid-run no longer
+  frees plaintext template bytes unwiped.
 
 ### Added
 
