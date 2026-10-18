@@ -730,7 +730,9 @@ require(arch_image in aur_publisher, "AUR publication helper does not use the im
 
 def require_arch_mirror_before_each_pacman(relative_path: str) -> None:
     content = (ROOT / relative_path).read_text()
-    pacman_commands = list(re.finditer(r"(?m)^\s*(?:RUN\s+)?pacman\s", content))
+    pacman_commands = list(
+        re.finditer(r"(?m)^\s*(?:(?:RUN\s+)|(?:while\s+!\s+))?pacman\s", content)
+    )
     require(pacman_commands, f"expected an Arch package invocation in {relative_path}")
     boundary = 0
     for command in pacman_commands:

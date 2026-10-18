@@ -21,7 +21,8 @@ jobs:
       - name: Install system dependencies
         run: |
           printf '%s\n' 'Server = https://archive.archlinux.org/repos/2026/08/18/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-          pacman -Syu --noconfirm \
+          attempt=1
+          while ! pacman -Syu --noconfirm --disable-download-timeout \
             git \
             rust \
             clang \
@@ -31,7 +32,16 @@ jobs:
             pam \
             tpm2-tss \
             python \
-            just
+            just; do
+            if [ "$attempt" -ge 4 ]; then
+              echo "pacman failed after $attempt attempts" >&2
+              exit 1
+            fi
+            delay=$((15 * attempt))
+            echo "pacman failed on attempt $attempt; retrying in ${delay}s" >&2
+            sleep "$delay"
+            attempt=$((attempt + 1))
+          done
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -87,7 +97,7 @@ jobs:
         run: just build-smoke-binaries
 
       - name: Upload release binaries
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-binaries
           path: |
@@ -133,9 +143,19 @@ jobs:
       - name: Install system dependencies
         run: |
           printf '%s\n' 'Server = https://archive.archlinux.org/repos/2026/08/18/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-          pacman -Syu --noconfirm \
+          attempt=1
+          while ! pacman -Syu --noconfirm --disable-download-timeout \
             git \
-            rust
+            rust; do
+            if [ "$attempt" -ge 4 ]; then
+              echo "pacman failed after $attempt attempts" >&2
+              exit 1
+            fi
+            delay=$((15 * attempt))
+            echo "pacman failed on attempt $attempt; retrying in ${delay}s" >&2
+            sleep "$delay"
+            attempt=$((attempt + 1))
+          done
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -160,7 +180,8 @@ jobs:
       - name: Install dependencies
         run: |
           printf '%s\n' 'Server = https://archive.archlinux.org/repos/2026/08/18/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-          pacman -Syu --noconfirm \
+          attempt=1
+          while ! pacman -Syu --noconfirm --disable-download-timeout \
             git \
             rust \
             clang \
@@ -171,7 +192,16 @@ jobs:
             tpm2-tss \
             swtpm \
             python \
-            just
+            just; do
+            if [ "$attempt" -ge 4 ]; then
+              echo "pacman failed after $attempt attempts" >&2
+              exit 1
+            fi
+            delay=$((15 * attempt))
+            echo "pacman failed on attempt $attempt; retrying in ${delay}s" >&2
+            sleep "$delay"
+            attempt=$((attempt + 1))
+          done
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -211,14 +241,24 @@ jobs:
       - name: Install system dependencies
         run: |
           printf '%s\n' 'Server = https://archive.archlinux.org/repos/2026/08/18/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-          pacman -Syu --noconfirm \
+          attempt=1
+          while ! pacman -Syu --noconfirm --disable-download-timeout \
             fakeroot \
             git \
             just \
             perl \
             python \
             ripgrep \
-            util-linux
+            util-linux; do
+            if [ "$attempt" -ge 4 ]; then
+              echo "pacman failed after $attempt attempts" >&2
+              exit 1
+            fi
+            delay=$((15 * attempt))
+            echo "pacman failed on attempt $attempt; retrying in ${delay}s" >&2
+            sleep "$delay"
+            attempt=$((attempt + 1))
+          done
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -268,10 +308,20 @@ jobs:
       - name: Install system dependencies
         run: |
           printf '%s\n' 'Server = https://archive.archlinux.org/repos/2026/08/18/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-          pacman -Syu --noconfirm \
+          attempt=1
+          while ! pacman -Syu --noconfirm --disable-download-timeout \
             git \
             gettext \
-            just
+            just; do
+            if [ "$attempt" -ge 4 ]; then
+              echo "pacman failed after $attempt attempts" >&2
+              exit 1
+            fi
+            delay=$((15 * attempt))
+            echo "pacman failed on attempt $attempt; retrying in ${delay}s" >&2
+            sleep "$delay"
+            attempt=$((attempt + 1))
+          done
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -333,7 +383,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Download release binaries
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-binaries
           path: target/release
@@ -403,7 +453,7 @@ jobs:
           persist-credentials: false
 
       - name: Download release binaries
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: release-binaries
           path: target/release
